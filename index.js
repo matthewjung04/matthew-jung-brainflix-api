@@ -8,9 +8,13 @@ const app = express();
 const { PORT, ORIGIN } = process.env;
 
 app.use(express.json());
-app.use(express.static('public'));
-
+app.use('/images', express.static('public'));
 app.use(cors({ PORT, ORIGIN }));
+
+/* Import simplified video list */
+const simpleVideoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
+/* Import detailed video list */
+const detailedVideoList = fs.readFileSync('./data/video-details.json',{encoding: 'utf8'});
 
 /* /videos
 GET
@@ -22,12 +26,8 @@ POST
 */
 app.route('/videos')
   .get((req,res) => {
-    const getVideoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'})
-    console.log(fs.readFileSync('./data/videos.json',{encoding: 'utf8'}))
-    res.send(getVideoList);
+    res.send(simpleVideoList);
   })
- 
-
   // .post(function(req,res) {
   
   //   /* Simplified video data */
@@ -87,7 +87,6 @@ app.route('/videos')
   //   );
 
   // })
-;
 
 /* /videos/:id
  - :id must be swapped out with the id of a video as found in the list of videos
@@ -97,13 +96,17 @@ GET
 PUT
  - Increments the like count of the video specified by video id
 */
-app.route('video/:id')
+app.route('/videos/:id')
   .get(function(req,res) {
-    res.send('get video details');
+    const videoId = req.params.id;
+    const readDetailedList = JSON.parse(detailedVideoList);
+    const videoIndex = readDetailedList.findIndex(video => video.id == videoId);
+    const writeDetailedList = JSON.stringify(readDetailedList[videoIndex]);
+    res.send(writeDetailedList);
   })
-  .put(function(req,res) {
-    res.send('increment number of likes')
-  })
+  // .put(function(req,res) {
+  //   res.send('increment number of likes')
+  // })
 
 /* /videos/:id/comments
 POST 
