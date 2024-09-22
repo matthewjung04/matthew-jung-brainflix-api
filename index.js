@@ -11,10 +11,8 @@ app.use(express.json());
 app.use('/images', express.static('public'));
 app.use(cors({ PORT, ORIGIN }));
 
-/* Import simplified video list */
-const simpleVideoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
-/* Import detailed video list */
-const detailedVideoList = fs.readFileSync('./data/video-details.json',{encoding: 'utf8'});
+/* Import video list */
+const videoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
 
 /* /videos
 GET
@@ -26,67 +24,67 @@ POST
 */
 app.route('/videos')
   .get((req,res) => {
-    res.send(simpleVideoList);
+    res.send(videoList);
   })
-  // .post(function(req,res) {
+  .post(function(req,res) {
   
-  //   /* Simplified video data */
-  //   const newVideoId = uuidv4();
-  //   const title = req.body.title;
-  //   const channel = "BrainStation";
-  //   const image = req.body.image;
-  //   const description = req.body.description;
-  //   const views = 0;
-  //   const likes = 0;
-  //   const timestamp = Date.now();
-  //   const comments = [];
+    /* Simplified video data */
+    const newVideoId = uuidv4();
+    const title = req.body.title;
+    const channel = "BrainStation";
+    const image = req.body.image;
+    const description = req.body.description;
+    const views = 0;
+    const likes = 0;
+    const timestamp = Date.now();
+    const comments = [];
 
-  //   /* Partial video details */
-  //   const newVideo = {
-  //     id: newVideoId,
-  //     title: title,
-  //     channel: channel,
-  //     image: image,
-  //   }
+    /* Partial video details */
+    const newVideo = {
+      id: newVideoId,
+      title: title,
+      channel: channel,
+      image: image,
+    }
 
-  //   /* Full video details */
-  //   const newFullVideo = {
-  //     id: newVideoId,
-  //     title: title,
-  //     channel: channel,
-  //     image: image,
-  //     description: description,
-  //     views: views,
-  //     likes: likes,
-  //     timestamp: timestamp,
-  //     comments: comments
-  //   }
+    /* Full video details */
+    const newFullVideo = {
+      id: newVideoId,
+      title: title,
+      channel: channel,
+      image: image,
+      description: description,
+      views: views,
+      likes: likes,
+      timestamp: timestamp,
+      comments: comments
+    }
  
-  //   /* Import json file containing simplified list of videos */
-  //   const getVideos= () => {fs.readFileSync('./data/videos.json',{encoding: 'utf8'})}
-  //   let readVideos = JSON.parse(getVideos());
-  //   /* update data array containing simplified video list */
-  //   readVideos.push(newVideo);
-  //   /* write the new updated array for simplified video list and callback confirmation */
-  //   fs.writeFile('./data/videos.json',
-  //     JSON.stringify(readVideos), () => {
-  //       res.json(`${title} has been uploaded`);
-  //     }
-  //   );
+    /* Import json file containing simplified list of videos */
+    const getVideos= () => {fs.readFileSync('./data/videos.json',{encoding: 'utf8'})}
+    let readVideos = JSON.parse(getVideos());
+    /* update data array containing simplified video list */
+    readVideos.push(newVideo);
+    /* write the new updated array for simplified video list and callback confirmation */
+    fs.writeFile('./data/videos.json',
+      JSON.stringify(readVideos), () => {
+        res.json(`${title} has been uploaded`);
+      }
+    );
 
-  //   /* Import json file containing detailed list of videos */
-  //   const getFullVideos = () => { fs.readFileSync('./data/video-details.json',{encoding: 'utf8'})}
-  //   let readFullVideos = JSON.parse(getFullVideos());
-  //   /* update data array containing detailed video list */
-  //   readFullVideos.push(newFullVideo);
-  //   /* write the new updated array for detailed video list and callback confirmation */
-  //   fs.writeFile('./data/video-details.json',
-  //     JSON.stringify(readFullVideos), () => {
-  //       res.json(`${title} has been added to next video list`)
-  //     }
-  //   );
+    /* Import json file containing detailed list of videos */
+    const getFullVideos = () => { fs.readFileSync('./data/video-details.json',{encoding: 'utf8'})}
+    let readFullVideos = JSON.parse(getFullVideos());
+    /* update data array containing detailed video list */
+    readFullVideos.push(newFullVideo);
+    /* write the new updated array for detailed video list and callback confirmation */
+    fs.writeFile('./data/video-details.json',
+      JSON.stringify(readFullVideos), () => {
+        res.json(`${title} has been added to next video list`)
+      }
+    );
 
-  // })
+  })
 
 /* /videos/:id
  - :id must be swapped out with the id of a video as found in the list of videos
@@ -99,9 +97,9 @@ PUT
 app.route('/videos/:id')
   .get(function(req,res) {
     const videoId = req.params.id;
-    const readDetailedList = JSON.parse(detailedVideoList);
-    const videoIndex = readDetailedList.findIndex(video => video.id == videoId);
-    const writeDetailedList = JSON.stringify(readDetailedList[videoIndex]);
+    const readVideoList = JSON.parse(videoList);
+    const videoIndex = readVideoList.findIndex(video => video.id == videoId);
+    const writeDetailedList = JSON.stringify(readVideoList[videoIndex]);
     res.send(writeDetailedList);
   })
   // .put(function(req,res) {
