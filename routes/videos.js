@@ -72,11 +72,30 @@ videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
   /* write the new updated array containing new comment and callback confirmation */
   fs.writeFile('./data/videos.json',
     JSON.stringify(readVideos), () => {
-      res.json('New comment has been posted')
+      res.json(newComment)
     }  
   ); 
 
 })
+
+/* Deletes the given comment and returns it in the response body */
+videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
+  const videoId = req.params.videoId;
+  const commentId = req.params.commentId;
+
+  let readVideos = JSON.parse(videoList);
+  const videoIndex = readVideos.findIndex(video => video.id == videoId);
+  const commentIndex = readVideos[videoIndex].comments.findIndex(comment => comment.id == commentId);
+  const deletedComment = readVideos[videoIndex].comments[commentIndex];
+  readVideos[videoIndex].comments.splice(commentIndex,1);
+
+  fs.writeFile('./data/videos.json',
+    JSON.stringify(readVideos), () => {
+      res.json(deletedComment)
+    }  
+  ); 
+})
+
 
 
 // .put(function(req,res) {
@@ -86,14 +105,6 @@ videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
 
 
 
-/* /vidoes/:videoId/comments/:commentId
-DELETE
- - Deletes the given comment and returns it in the response body
- - :videoId must be swapped out with the numeric id of a video as found in the list of videos
- - :commentId must be swapped out with the numeric id of a comment as found in the list of comments for the given video
-*/
-// app.delete(function(req,res) {
-//   res.send('delete a comment')
-// });
+
 
 export default videoRouter
