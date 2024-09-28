@@ -9,13 +9,23 @@ const jsonParser = bodyParser.json();
 /* Import video list */
 const videoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
 
-/* Returns simplified video list */
+/* Returns video list */
 videoRouter.get('/', (req,res) => { 
   res.send(videoList);
 })
 
+/* Returns a detailed object of a single video */
+videoRouter.get('/:id', (req,res) => {
+  const videoId = req.params.id;
+  const readVideoList = JSON.parse(videoList);
+  const videoIndex = readVideoList.findIndex(video => video.id == videoId);
+  const writeDetailedList = JSON.stringify(readVideoList[videoIndex]);
+  res.send(writeDetailedList);
+})
+
 /* Adds new video object to video list */
 videoRouter.post('/', jsonParser, (req,res) => {
+
   /* New video details */
   const newVideo = {
     id: uuidv4(),
@@ -40,28 +50,40 @@ videoRouter.post('/', jsonParser, (req,res) => {
     }
   ); 
 })
-/* /videos/:id
- - :id must be swapped out with the id of a video as found in the list of videos
-GET
- - Returns a detailed object of a single video
- - Details include the list of comments for that video
-PUT
- - Increments the like count of the video specified by video id
-*/
-videoRouter.get('/:id', (req,res) => {
-  const videoId = req.params.id;
-  const readVideoList = JSON.parse(videoList);
-  const videoIndex = readVideoList.findIndex(video => video.id == videoId);
-  const writeDetailedList = JSON.stringify(readVideoList[videoIndex]);
-  res.send(writeDetailedList);
-})
-  // .put(function(req,res) {
-  //   res.send('increment number of likes')
-  // })
 
-/* /videos/:id/comments
- - Creates a new comment for a specific video
-*/
+/* Creates a new comment for a specific video */
+videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
+  const videoId = req.params.videoId;
+  
+  /* New comment details */
+  const newComment = {
+    id: uuidv4(),
+    name: req.body.name,
+    comment: req.body.comment,
+    likes: 0,
+    timestamp: Date.now()
+  }
+
+  /* update data array containing video specific comments */
+  let readVideos = JSON.parse(videoList);
+  const index = readVideos.findIndex(video => video.id == videoId);
+  readVideos[index].comments.push(newComment);
+
+  /* write the new updated array containing new comment and callback confirmation */
+  fs.writeFile('./data/videos.json',
+    JSON.stringify(readVideos), () => {
+      res.json('New comment has been posted')
+    }  
+  ); 
+
+})
+
+
+// .put(function(req,res) {
+//   res.send('increment number of likes')
+// })
+
+
 
 
 /* /vidoes/:videoId/comments/:commentId
