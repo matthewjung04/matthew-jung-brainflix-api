@@ -3,7 +3,7 @@
 ## Acknowledgement
 - [Brainstation](https://brainstation.io/)
 - [Postman](https://www.postman.com/)
-- [ThunderClient] (https://www.thunderclient.com/)
+- [Thunder Client](https://www.thunderclient.com/)
 - [StackBlitz](https://stackblitz.com/edit/react-fu7pbk?file=src%2FApp.js)
 - [Vite](https://vitejs.dev/)
 - [npm](https://www.npmjs.com/)
