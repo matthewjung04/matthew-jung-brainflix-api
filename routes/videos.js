@@ -39,11 +39,11 @@ videoRouter.post('/', jsonParser, (req,res) => {
     comments: []
   }
 
-  /* update data array containing simplified video list */
+  /* Update data array containing simplified video list */
   let readVideos = JSON.parse(videoList);
   readVideos.push(newVideo);
 
-  /* write the new updated array for simplified video list and callback confirmation */
+  /* Write the new updated array for simplified video list and callback confirmation */
   fs.writeFile('./data/videos.json',
     JSON.stringify(readVideos), () => {
       res.json(`${newVideo.title} has been uploaded`)
@@ -64,12 +64,12 @@ videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
     timestamp: Date.now()
   }
 
-  /* update data array containing video specific comments */
+  /* Update data array containing video specific comments */
   let readVideos = JSON.parse(videoList);
   const index = readVideos.findIndex(video => video.id == videoId);
   readVideos[index].comments.push(newComment);
 
-  /* write the new updated array containing new comment and callback confirmation */
+  /* Write the new updated array containing new comment and callback confirmation */
   fs.writeFile('./data/videos.json',
     JSON.stringify(readVideos), () => {
       res.json(newComment)
@@ -96,15 +96,10 @@ videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
   ); 
 })
 
-
-
+/* Increments  */
 // .put(function(req,res) {
 //   res.send('increment number of likes')
 // })
-
-
-
-
 
 
 export default videoRouter
