@@ -105,7 +105,7 @@ videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
 })
 
 /* Increments number of likes for specific video*/
-.put('/:id/likes',function(req,res) {
+videoRouter.put('/:id/likes',function(req,res) {
   const videoId = req.params.id;
   let readVideoList = JSON.parse(videoList);
   readVideoList.forEach((videoObj) => videoObj.video=videoSrc)
