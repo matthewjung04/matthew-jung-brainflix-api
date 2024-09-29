@@ -9,6 +9,15 @@ const jsonParser = bodyParser.json();
 /* Import video list */
 const videoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
 
+/* Export video List */
+const writeToJSON = (data, res, reply) => {
+  fs.writeFile('./data/videos.json',
+    JSON.stringify(data), () => {
+      res.json(reply)
+    }
+  ); 
+}
+
 /* Returns video list */
 videoRouter.get('/', (req,res) => { 
   res.send(videoList);
@@ -44,11 +53,7 @@ videoRouter.post('/', jsonParser, (req,res) => {
   readVideos.push(newVideo);
 
   /* Write the new updated array for simplified video list and callback confirmation */
-  fs.writeFile('./data/videos.json',
-    JSON.stringify(readVideos), () => {
-      res.json(`${newVideo.title} has been uploaded`)
-    }
-  ); 
+  writeToJSON(readVideos, res, `${newVideo.title} has been uploaded`);
 })
 
 /* Creates a new comment for a specific video */
@@ -70,12 +75,7 @@ videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
   readVideos[index].comments.push(newComment);
 
   /* Write the new updated array containing new comment and callback confirmation */
-  fs.writeFile('./data/videos.json',
-    JSON.stringify(readVideos), () => {
-      res.json(newComment)
-    }  
-  ); 
-
+  writeToJSON(readVideos, res, newComment);
 })
 
 /* Deletes the given comment and returns it in the response body */
@@ -89,17 +89,24 @@ videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
   const deletedComment = readVideos[videoIndex].comments[commentIndex];
   readVideos[videoIndex].comments.splice(commentIndex,1);
 
-  fs.writeFile('./data/videos.json',
-    JSON.stringify(readVideos), () => {
-      res.json(deletedComment)
-    }  
-  ); 
+  writeToJSON(readVideos, res, deletedComment)
 })
 
-/* Increments  */
-// .put(function(req,res) {
-//   res.send('increment number of likes')
-// })
+/* Increments number of likes for specific video*/
+.put('/:id/likes',function(req,res) {
+  const videoId = req.params.id;
+  const readVideoList = JSON.parse(videoList);
+
+  const selectedVideo = readVideoList.find(element => element.id == videoId);
+  const selectedIndex = readVideoList.findIndex(element => element.id == videoId);
+
+  let likes = parseFloat(selectedVideo.likes.replace(/,/g, ''));
+  likes = likes+1;
+  selectedVideo.likes = likes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  readVideoList[selectedIndex] = selectedVideo;
+  writeToJSON(readVideoList, res, selectedVideo);
+})
 
 
 export default videoRouter
