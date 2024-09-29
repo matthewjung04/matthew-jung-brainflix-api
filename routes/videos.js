@@ -6,8 +6,13 @@ import bodyParser from 'body-parser';
 const videoRouter = express.Router();
 const jsonParser = bodyParser.json();
 
+videoRouter.use('/static', express.static('public'));
+
 /* Import video list */
 const videoList = fs.readFileSync('./data/videos.json',{encoding: 'utf8'});
+
+/* Video Source for custom player controls */
+const videoSrc = "http://localhost:5050/videos/static/images/BrainStationSampleVideo.mp4";
 
 /* Export video List */
 const writeToJSON = (data, res, reply) => {
@@ -19,14 +24,18 @@ const writeToJSON = (data, res, reply) => {
 }
 
 /* Returns video list */
-videoRouter.get('/', (req,res) => { 
-  res.send(videoList);
+videoRouter.get('/', (req,res) => {
+  const readVideoList = JSON.parse(videoList);
+  readVideoList.forEach((videoObj) => videoObj.video=videoSrc)
+  const writeVideoList = JSON.stringify(readVideoList);
+  res.send(writeVideoList);
 })
 
 /* Returns a detailed object of a single video */
 videoRouter.get('/:id', (req,res) => {
   const videoId = req.params.id;
   const readVideoList = JSON.parse(videoList);
+  readVideoList.forEach((videoObj) => videoObj.video=videoSrc)
   const videoIndex = readVideoList.findIndex(video => video.id == videoId);
   const writeDetailedList = JSON.stringify(readVideoList[videoIndex]);
   res.send(writeDetailedList);
@@ -51,6 +60,7 @@ videoRouter.post('/', jsonParser, (req,res) => {
   /* Update data array containing simplified video list */
   let readVideos = JSON.parse(videoList);
   readVideos.push(newVideo);
+  readVideos.forEach((videoObj) => videoObj.video=videoSrc)
 
   /* Write the new updated array for simplified video list and callback confirmation */
   writeToJSON(readVideos, res, `${newVideo.title} has been uploaded`);
@@ -71,6 +81,7 @@ videoRouter.post('/:videoId/comments', jsonParser, (req,res) => {
 
   /* Update data array containing video specific comments */
   let readVideos = JSON.parse(videoList);
+  readVideos.forEach((videoObj) => videoObj.video=videoSrc)
   const index = readVideos.findIndex(video => video.id == videoId);
   readVideos[index].comments.push(newComment);
 
@@ -84,6 +95,7 @@ videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
   const commentId = req.params.commentId;
 
   let readVideos = JSON.parse(videoList);
+  readVideos.forEach((videoObj) => videoObj.video=videoSrc)
   const videoIndex = readVideos.findIndex(video => video.id == videoId);
   const commentIndex = readVideos[videoIndex].comments.findIndex(comment => comment.id == commentId);
   const deletedComment = readVideos[videoIndex].comments[commentIndex];
@@ -95,7 +107,8 @@ videoRouter.delete('/:videoId/comments/:commentId', function(req,res) {
 /* Increments number of likes for specific video*/
 .put('/:id/likes',function(req,res) {
   const videoId = req.params.id;
-  const readVideoList = JSON.parse(videoList);
+  let readVideoList = JSON.parse(videoList);
+  readVideoList.forEach((videoObj) => videoObj.video=videoSrc)
 
   const selectedVideo = readVideoList.find(element => element.id == videoId);
   const selectedIndex = readVideoList.findIndex(element => element.id == videoId);
